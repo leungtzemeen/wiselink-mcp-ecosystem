@@ -1,0 +1,21 @@
+﻿# Build outputs
+target/
+out/
+build/
+dist/
+
+# Dependencies & caches
+.m2/
+**/node_modules/
+
+# IDE / tooling noise
+.idea/
+.vscode/
+
+# Large / generated logs
+*.log
+logs/
+
+# OS junk
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: wiselink-mcp-ecosystem
+  ai:
+    mcp:
+      server:
+        name: wiselink-mcp-ecosystem
+        type: SYNC
+        stdio: true
+  main:
+    web-application-type: none
+    banner-mode: off
+
+server:
+  port: 8082

@@ -1,0 +1,57 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.factorypath
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs & temp
+*.log
+logs/
+tmp/
+temp/
+
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# Spring / local config (keep application.yml in repo; ignore overrides)
+application-local.yml
+application-local.properties
+.env
+.env.*
+
+# Coverage / reports
+coverage/
+.nyc_output/
+
+# WiseLink 工作区产物（保留目录：.gitkeep）
+exports/*
+!exports/.gitkeep
+downloads/*
+!downloads/.gitkeep
