@@ -5,6 +5,7 @@ import java.nio.file.Path;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Order(0)
+@DependsOn("wiseLinkWorkspaceRootConfigurer")
 @Slf4j
 public class WiseLinkWorkspaceBootstrap implements ApplicationRunner {
 

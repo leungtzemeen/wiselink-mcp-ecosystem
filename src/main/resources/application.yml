@@ -1,3 +1,9 @@
+# MCP 工作区根（可选）。优先级：环境变量 WISELINK_MCP_WORKSPACE_ROOT > 本项 > user.dir
+# 日志目录 {工作区根}/logs 由 WiseLinkMcpLoggingEnvironmentPostProcessor 自动注入 wiselink.mcp.log-directory
+wiselink:
+  mcp:
+    workspace-root: ""
+
 spring:
   application:
     name: wiselink-mcp-ecosystem
