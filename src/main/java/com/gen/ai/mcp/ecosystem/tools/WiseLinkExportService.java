@@ -53,12 +53,15 @@ public class WiseLinkExportService {
 
     @Tool(name = "exportShoppingReport", description = WiseLinkMcpToolDescriptions.EXPORT_SHOPPING_REPORT)
     public String exportShoppingReport(ShoppingReportExportRequest request) {
+        String raw = request == null || request.recommendationText() == null
+                ? ""
+                : request.recommendationText().trim();
+        System.err.println(
+                "[WiseLink-Ecosystem] PDF生成请求已入场，Session内容长度: " + raw.length());
+
         try {
-            String raw = request == null || request.recommendationText() == null
-                    ? ""
-                    : request.recommendationText().trim();
             if (raw.isEmpty()) {
-                return "错误：exportShoppingReport 需要非空的 recommendationText（选购建议正文）。";
+                return "ERROR: exportShoppingReport 需要非空的 recommendationText（选购建议正文）。";
             }
             if (raw.length() > MAX_BODY_CHARS) {
                 raw = raw.substring(0, MAX_BODY_CHARS)
@@ -68,6 +71,7 @@ public class WiseLinkExportService {
             }
 
             Path exportDir = WiseLinkWorkspacePaths.exportsDirectory();
+            // 生成 PDF 前确保工作区 exports/ 已存在（不存在则创建；失败由 catch 返回 ERROR:，避免进程退出）
             Files.createDirectories(exportDir);
 
             String stamp = LocalDateTime.now().format(FILE_TS);
@@ -81,7 +85,8 @@ public class WiseLinkExportService {
             Font metaFont = new Font(baseFont, 9.5f, Font.NORMAL);
 
             String headerInstant = LocalDateTime.now().format(HEADER_TS);
-            Path temp = Files.createTempFile(exportDir, ".shopping-report-", ".wip.pdf");
+            // 临时文件放在系统 temp 目录，避免在 exports 内留下 .wip.pdf 残留（Windows 下偶发可见 0 KB 孤儿文件）
+            Path temp = Files.createTempFile("wiselink-shopping-report-", ".wip.pdf");
             try {
                 try (OutputStream os = Files.newOutputStream(temp, StandardOpenOption.TRUNCATE_EXISTING)) {
                     Document document =
@@ -128,10 +133,14 @@ public class WiseLinkExportService {
 
             Path absolute = target.toAbsolutePath().normalize();
             log.info(">>>> [WiseLink-Export] PDF 已生成 path='{}'", absolute);
-            return "导出成功。PDF 绝对路径：" + absolute + "（请将该路径告知用户，在项目 exports 目录下可打开。）";
+            return absolute.toString();
         } catch (Exception ex) {
             log.warn(">>>> [WiseLink-Export] 导出失败: {}", ex.toString());
-            return "PDF 导出失败（对话可继续）：" + ex.getMessage();
+            String detail = ex.getMessage();
+            if (detail == null || detail.isBlank()) {
+                detail = ex.toString();
+            }
+            return "ERROR: " + detail;
         }
     }
 
