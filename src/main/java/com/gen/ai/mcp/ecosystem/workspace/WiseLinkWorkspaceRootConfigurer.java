@@ -23,9 +23,7 @@ public class WiseLinkWorkspaceRootConfigurer implements InitializingBean {
     public void afterPropertiesSet() {
         WiseLinkWorkspaceRootResolver.Resolution resolution =
                 WiseLinkWorkspaceRootResolver.resolveWithSource(environment);
-        WiseLinkWorkspaceRootResolver.logWorkspaceResolution(
-                "(exports/downloads tools)",
-                resolution);
+        WiseLinkWorkspaceRootResolver.logWorkspaceResolution("(exports tool)", resolution);
         WiseLinkWorkspacePaths.setResolvedProjectRoot(resolution.root());
     }
 }

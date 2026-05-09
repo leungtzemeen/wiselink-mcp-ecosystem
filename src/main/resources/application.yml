@@ -1,8 +1,28 @@
-# MCP 工作区根（可选）。优先级：环境变量 WISELINK_MCP_WORKSPACE_ROOT > 本项 > user.dir
-# 日志目录 {工作区根}/logs 由 WiseLinkMcpLoggingEnvironmentPostProcessor 自动注入 wiselink.mcp.log-directory
+# =============================================================================
+# WiseLink MCP 工作区（部署时优先关注）
+# -----------------------------------------------------------------------------
+# 以下目录均以「工作区根」为基准：
+#   • 日志：{工作区根}/logs  （见 WiseLinkMcpLoggingEnvironmentPostProcessor + logback-spring.xml）
+#   • PDF： {工作区根}/static/exports  （见 WiseLinkWorkspacePaths#exportsDirectory）
+#
+# 推荐运维方式：在进程环境中设置 WISELINK_MCP_WORKSPACE_ROOT（绝对路径）。
+# 本文件中的 wiselink.mcp.workspace-root 已绑定该变量，便于在仓库内一眼看到依赖关系；
+# 解析优先级仍为：环境变量 WISELINK_MCP_WORKSPACE_ROOT > 本配置项 > user.dir
+# （见 WiseLinkWorkspaceRootResolver）。
+# 环境变量清单示例：仓库根目录 .env.example
+# =============================================================================
 wiselink:
   mcp:
-    workspace-root: ""
+    # 未设置 WISELINK_MCP_WORKSPACE_ROOT 时为空，回退 user.dir；生产请务必设环境变量或覆盖为绝对路径
+    workspace-root: ${WISELINK_MCP_WORKSPACE_ROOT}
+
+# 8082 对外下载 URL：base-url 建议仅配到端口，换域名/反代时改 WISELINK_EXPORT_BASE_URL 即可
+app:
+  export:
+    # 动态：仅协议+主机+端口；固定：Web 映射前缀（与 WiseLinkExportWebMvcConfiguration 一致）
+    # 完整对外前缀等价于 base-url + url-path，例如 http://localhost:8082/exports/
+    base-url: ${WISELINK_EXPORT_BASE_URL}
+    url-path: /exports/
 
 spring:
   application:
@@ -14,7 +34,6 @@ spring:
         type: SYNC
         stdio: true
   main:
-    web-application-type: none
     banner-mode: off
 
 server:

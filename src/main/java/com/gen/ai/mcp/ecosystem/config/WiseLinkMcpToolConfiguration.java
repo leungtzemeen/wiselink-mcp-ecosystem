@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.gen.ai.mcp.ecosystem.tools.WiseLinkExportService;
-import com.gen.ai.mcp.ecosystem.tools.WiseLinkExternalSearchService;
-import com.gen.ai.mcp.ecosystem.tools.WiseLinkSystemToolsService;
 
 /**
  * 将带 {@link org.springframework.ai.tool.annotation.Tool} 的工具 Bean 显式注册为
@@ -18,12 +16,7 @@ import com.gen.ai.mcp.ecosystem.tools.WiseLinkSystemToolsService;
 public class WiseLinkMcpToolConfiguration {
 
     @Bean
-    public ToolCallbackProvider wiselinkEcosystemToolCallbackProvider(
-            WiseLinkExportService exportService,
-            WiseLinkExternalSearchService externalSearchService,
-            WiseLinkSystemToolsService systemToolsService) {
-        return MethodToolCallbackProvider.builder()
-                .toolObjects(exportService, externalSearchService, systemToolsService)
-                .build();
+    public ToolCallbackProvider wiselinkEcosystemToolCallbackProvider(WiseLinkExportService exportService) {
+        return MethodToolCallbackProvider.builder().toolObjects(exportService).build();
     }
 }

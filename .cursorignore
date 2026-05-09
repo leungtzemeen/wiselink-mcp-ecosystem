@@ -15,6 +15,7 @@ dist/
 # Large / generated logs
 *.log
 logs/
+static/
 
 # OS junk
 .DS_Store

@@ -11,12 +11,17 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gen.ai.mcp.ecosystem.config.AppExportProperties;
 import com.gen.ai.mcp.ecosystem.workspace.WiseLinkWorkspacePaths;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -39,6 +44,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WiseLinkExportService {
 
+    private final ObjectMapper objectMapper;
+    private final AppExportProperties appExportProperties;
+
+    public WiseLinkExportService(ObjectMapper objectMapper, AppExportProperties appExportProperties) {
+        this.objectMapper = objectMapper;
+        this.appExportProperties = appExportProperties;
+    }
+
     private static final DateTimeFormatter FILE_TS =
             DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS").withLocale(Locale.ROOT);
     private static final DateTimeFormatter HEADER_TS =
@@ -58,7 +71,7 @@ public class WiseLinkExportService {
                     ? ""
                     : request.recommendationText().trim();
             if (raw.isEmpty()) {
-                return "错误：exportShoppingReport 需要非空的 recommendationText（选购建议正文）。";
+                return errorJson("exportShoppingReport 需要非空的 recommendationText（选购建议正文）。");
             }
             if (raw.length() > MAX_BODY_CHARS) {
                 raw = raw.substring(0, MAX_BODY_CHARS)
@@ -71,7 +84,8 @@ public class WiseLinkExportService {
             Files.createDirectories(exportDir);
 
             String stamp = LocalDateTime.now().format(FILE_TS);
-            Path target = exportDir.resolve("shopping-report-" + stamp + ".pdf");
+            String filename = "wiselink-report-" + stamp + ".pdf";
+            Path target = exportDir.resolve(filename);
 
             BaseFont baseFont = resolveChineseBaseFont();
             boolean cjkReady = BaseFont.IDENTITY_H.equals(baseFont.getEncoding());
@@ -81,7 +95,7 @@ public class WiseLinkExportService {
             Font metaFont = new Font(baseFont, 9.5f, Font.NORMAL);
 
             String headerInstant = LocalDateTime.now().format(HEADER_TS);
-            Path temp = Files.createTempFile(exportDir, ".shopping-report-", ".wip.pdf");
+            Path temp = Files.createTempFile("wiselink-report-", ".wip.pdf");
             try {
                 try (OutputStream os = Files.newOutputStream(temp, StandardOpenOption.TRUNCATE_EXISTING)) {
                     Document document =
@@ -101,7 +115,7 @@ public class WiseLinkExportService {
                         document.add(new Paragraph(" ", bodyFont));
                     }
 
-                    document.add(new Paragraph("WiseLink 2.0 选购建议书", titleFont));
+                    document.add(new Paragraph("WiseLinkAI(智选灵犀) 选购建议书", titleFont));
                     document.add(new Paragraph("生成时间：" + headerInstant, metaFont));
                     document.add(new Paragraph(" ", metaFont));
 
@@ -127,11 +141,38 @@ public class WiseLinkExportService {
             }
 
             Path absolute = target.toAbsolutePath().normalize();
+            if (!Files.isRegularFile(absolute) || Files.size(absolute) <= 0L) {
+                return errorJson("PDF 已写入但校验失败（文件不存在或大小为 0）：" + absolute);
+            }
+            String downloadUrl = appExportProperties.buildDownloadUrl(filename);
+            log.info(">>>> [Export-Success] PDF 已就绪，下载链接: {}", downloadUrl);
             log.info(">>>> [WiseLink-Export] PDF 已生成 path='{}'", absolute);
-            return "导出成功。PDF 绝对路径：" + absolute + "（请将该路径告知用户，在项目 exports 目录下可打开。）";
+            return successJson(downloadUrl);
         } catch (Exception ex) {
             log.warn(">>>> [WiseLink-Export] 导出失败: {}", ex.toString());
-            return "PDF 导出失败（对话可继续）：" + ex.getMessage();
+            String detail = ex.getMessage();
+            if (detail == null || detail.isBlank()) {
+                detail = ex.toString();
+            }
+            return errorJson(detail);
+        }
+    }
+
+    private String successJson(String downloadUrl) throws JsonProcessingException {
+        Map<String, String> body = new LinkedHashMap<>();
+        body.put("status", "success");
+        body.put("url", downloadUrl);
+        return objectMapper.writeValueAsString(body);
+    }
+
+    private String errorJson(String message) {
+        Map<String, String> body = new LinkedHashMap<>();
+        body.put("status", "error");
+        body.put("message", message);
+        try {
+            return objectMapper.writeValueAsString(body);
+        } catch (JsonProcessingException ex) {
+            return "{\"status\":\"error\",\"message\":\"JSON 序列化失败\"}";
         }
     }
 

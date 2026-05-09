@@ -6,18 +6,18 @@ import java.nio.file.Paths;
 import org.springframework.util.StringUtils;
 
 /**
- * MCP Server 工作区路径：{@code exports/}、{@code downloads/} 均相对于
- * {@link #projectRoot()}。根目录由 {@link WiseLinkWorkspaceRootConfigurer} 在启动时解析
- * （环境变量 {@value WiseLinkWorkspaceRootResolver#WORKSPACE_ROOT_ENV} &gt; {@code wiselink.mcp.workspace-root} &gt; {@code user.dir}）；
- * 若在 Spring 初始化之前调用 {@link #projectRoot()}，则仅使用环境变量与 {@code user.dir} 的回退逻辑。
+ * MCP Server 工作区路径：PDF 导出目录为 {@code static/exports/}（即
+ * {@code ${WISELINK_MCP_WORKSPACE_ROOT}/static/exports}），相对于 {@link #projectRoot()}。根目录由
+ * {@link WiseLinkWorkspaceRootConfigurer} 在启动时解析（环境变量
+ * {@value WiseLinkWorkspaceRootResolver#WORKSPACE_ROOT_ENV} &gt; {@code wiselink.mcp.workspace-root} &gt;
+ * {@code user.dir}）；若在 Spring 初始化之前调用 {@link #projectRoot()}，则仅使用环境变量与 {@code user.dir} 的回退逻辑。
  */
 public final class WiseLinkWorkspacePaths {
 
-    /** 与 {@code WiseLinkExportService} 原 {@code EXPORT_SUBDIR} 一致。 */
-    public static final String EXPORTS_SUBDIR = "exports";
+    /** PDF 导出目录：{@code static/exports}（相对工作区根）。 */
+    public static final String STATIC_SUBDIR = "static";
 
-    /** 与 {@code WiseLinkSystemToolsService} 原 {@code DOWNLOADS_SUBDIR} 一致。 */
-    public static final String DOWNLOADS_SUBDIR = "downloads";
+    public static final String EXPORTS_SUBDIR = "exports";
 
     private static volatile Path resolvedProjectRoot;
 
@@ -54,10 +54,6 @@ public final class WiseLinkWorkspacePaths {
     }
 
     public static Path exportsDirectory() {
-        return projectRoot().resolve(EXPORTS_SUBDIR);
-    }
-
-    public static Path downloadsDirectory() {
-        return projectRoot().resolve(DOWNLOADS_SUBDIR);
+        return projectRoot().resolve(STATIC_SUBDIR).resolve(EXPORTS_SUBDIR);
     }
 }
