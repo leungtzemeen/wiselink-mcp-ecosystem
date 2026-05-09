@@ -60,7 +60,7 @@ public final class WiseLinkWorkspaceRootResolver {
     }
 
     /**
-     * 输出一条解析结果日志（供 EnvironmentPostProcessor 等极早阶段调用；此时 Logback 可能尚未完全就绪）。
+     * 输出一条解析结果日志（供 Logback 已就绪后的 Bean 使用，例如 {@link WiseLinkWorkspaceRootConfigurer}）。
      */
     public static void logWorkspaceResolution(String context, Resolution resolution) {
         Path absolute = resolution.root().toAbsolutePath().normalize();
@@ -70,6 +70,23 @@ public final class WiseLinkWorkspaceRootResolver {
                 context,
                 resolution.sourceKey(),
                 absolute);
+    }
+
+    /**
+     * 在 Logback 加载 {@code logback-spring.xml} 之前输出诊断；<strong>禁止</strong>使用 Slf4j，避免在
+     * {@link WiseLinkMcpLoggingEnvironmentPostProcessor} 中提前触发日志桥接，使文件 appender 钉死在错误的
+     * {@code user.dir}/logs（例如被 8081 拉起的 MCP 子进程）。
+     */
+    public static void logWorkspaceResolutionToStderr(String context, Resolution resolution) {
+        Path absolute = resolution.root().toAbsolutePath().normalize();
+        System.err.println(
+                LOG_PREFIX
+                        + " "
+                        + context
+                        + " — workspace root source="
+                        + resolution.sourceKey()
+                        + " path="
+                        + absolute);
     }
 
     private static Path normalizeRoot(Path candidate, Path userDirPath) {

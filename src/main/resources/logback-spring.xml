@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- 由 WiseLinkMcpLoggingEnvironmentPostProcessor 注入，与 MCP 工作区根一致：{workspace}/logs -->
+    <!-- wiselink.mcp.log-directory：由 application.yml 与 WiseLinkMcpLoggingEnvironmentPostProcessor 在首次写文件前就绪；PostProcessor 内勿用 Slf4j，否则会误用 defaultValue -->
     <springProperty scope="context" name="LOG_PATH" source="wiselink.mcp.log-directory" defaultValue="${user.dir}/logs"/>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">

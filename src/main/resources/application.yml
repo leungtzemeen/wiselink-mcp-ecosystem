@@ -15,6 +15,8 @@ wiselink:
   mcp:
     # 未设置 WISELINK_MCP_WORKSPACE_ROOT 时为空，回退 user.dir；生产请务必设环境变量或覆盖为绝对路径
     workspace-root: ${WISELINK_MCP_WORKSPACE_ROOT}
+    # Logback 解析前即存在于 Environment（ConfigData），与 WiseLinkMcpLoggingEnvironmentPostProcessor 一致；双保险
+    log-directory: ${WISELINK_MCP_WORKSPACE_ROOT:${user.dir}}/logs
 
 # 8082 对外下载 URL：base-url 建议仅配到端口，换域名/反代时改 WISELINK_EXPORT_BASE_URL 即可
 app:
