@@ -19,6 +19,7 @@ import java.util.Map;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gen.ai.mcp.ecosystem.config.AppExportProperties;
@@ -61,7 +62,7 @@ public class WiseLinkExportService {
     /** 可通过环境变量指定字体路径；TTC 需带索引，例如 {@code C:/Windows/Fonts/msyh.ttc,0}。 */
     private static final String ENV_FONT = "WISELINK_PDF_FONT";
 
-    public record ShoppingReportExportRequest(String recommendationText) {
+    public record ShoppingReportExportRequest(@JsonProperty("recommendationText")String recommendationText) {
     }
 
     @Tool(name = "exportShoppingReport", description = WiseLinkMcpToolDescriptions.EXPORT_SHOPPING_REPORT)
