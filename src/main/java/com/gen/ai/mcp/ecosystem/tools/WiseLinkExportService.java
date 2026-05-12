@@ -19,7 +19,6 @@ import java.util.Map;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gen.ai.mcp.ecosystem.config.AppExportProperties;
@@ -53,24 +52,20 @@ public class WiseLinkExportService {
         this.appExportProperties = appExportProperties;
     }
 
-    private static final DateTimeFormatter FILE_TS =
-            DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS").withLocale(Locale.ROOT);
-    private static final DateTimeFormatter HEADER_TS =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.ROOT);
+    private static final DateTimeFormatter FILE_TS = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS")
+            .withLocale(Locale.ROOT);
+    private static final DateTimeFormatter HEADER_TS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withLocale(Locale.ROOT);
     private static final int MAX_BODY_CHARS = 80_000;
 
     /** 可通过环境变量指定字体路径；TTC 需带索引，例如 {@code C:/Windows/Fonts/msyh.ttc,0}。 */
     private static final String ENV_FONT = "WISELINK_PDF_FONT";
 
-    public record ShoppingReportExportRequest(@JsonProperty("recommendationText")String recommendationText) {
-    }
-
     @Tool(name = "exportShoppingReport", description = WiseLinkMcpToolDescriptions.EXPORT_SHOPPING_REPORT)
-    public String exportShoppingReport(ShoppingReportExportRequest request) {
+    public String exportShoppingReport(String recommendationText) {
+        // 下面逻辑不变：null/trim/长度上限/splitIntoParagraphs...
         try {
-            String raw = request == null || request.recommendationText() == null
-                    ? ""
-                    : request.recommendationText().trim();
+            String raw = recommendationText == null ? "" : recommendationText.trim();
             if (raw.isEmpty()) {
                 return errorJson("exportShoppingReport 需要非空的 recommendationText（选购建议正文）。");
             }
@@ -99,8 +94,7 @@ public class WiseLinkExportService {
             Path temp = Files.createTempFile("wiselink-report-", ".wip.pdf");
             try {
                 try (OutputStream os = Files.newOutputStream(temp, StandardOpenOption.TRUNCATE_EXISTING)) {
-                    Document document =
-                            new Document(PageSize.A4, 54f, 54f, 72f, 72f);
+                    Document document = new Document(PageSize.A4, 54f, 54f, 72f, 72f);
                     PdfWriter writer = PdfWriter.getInstance(document, os);
                     writer.setPageEvent(new ReportPageDecoration(baseFont, headerInstant));
                     document.open();
@@ -218,8 +212,7 @@ public class WiseLinkExportService {
             }
         }
 
-        try (InputStream in =
-                WiseLinkExportService.class.getResourceAsStream("/fonts/NotoSansSC-Regular.ttf")) {
+        try (InputStream in = WiseLinkExportService.class.getResourceAsStream("/fonts/NotoSansSC-Regular.ttf")) {
             if (in != null) {
                 byte[] bytes = in.readAllBytes();
                 return BaseFont.createFont(
@@ -293,8 +286,7 @@ public class WiseLinkExportService {
             cb.stroke();
             cb.restoreState();
 
-            String footerText =
-                    "本文件由 WiseLink 导购助手自动生成 · 第 " + writer.getPageNumber() + " 页";
+            String footerText = "本文件由 WiseLink 导购助手自动生成 · 第 " + writer.getPageNumber() + " 页";
 
             cb.saveState();
             cb.beginText();

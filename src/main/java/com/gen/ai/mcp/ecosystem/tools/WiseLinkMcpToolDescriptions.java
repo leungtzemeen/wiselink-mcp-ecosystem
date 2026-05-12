@@ -17,6 +17,6 @@ public final class WiseLinkMcpToolDescriptions {
          */
         public static final String EXPORT_SHOPPING_REPORT = "导出选购 PDF。 "
                         + "触发：用户要求保存、留档、打印或发给他人。 "
-                        + "入参：recommendationText 须含详细对比表与结论（Markdown）。 "
+                        + "调用时 JSON 必须为：{\"recommendationText\":\"此处为完整 Markdown 正文\"}，其中值为详细对比表与结论（Markdown）,勿使用其它字段名。 "
                         + "约束：必须逐字引用本轮返回的新 url，严禁复用旧链接或臆测路径；方案更新必须重调。";
 }
