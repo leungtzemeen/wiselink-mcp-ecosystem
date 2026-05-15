@@ -12,19 +12,19 @@
 # 环境变量清单示例：仓库根目录 .env.example
 # =============================================================================
 wiselink:
-  # web:
-  #   cors:
-  #     # 浏览器从其他源访问 8082（MCP、/exports 等）时允许跨域；生产请改为具体域名 pattern
-  #     enabled: true
-  #     path-pattern: "/**"
-  #     allowed-origin-patterns:
-  #       - "*"
-  #     allowed-methods:
-  #       - "*"
-  #     allowed-headers:
-  #       - "*"
-  #     allow-credentials: false
-  #     max-age-seconds: 3600
+  web:
+    cors:
+      # 浏览器从其他源访问 8082（MCP、/exports 等）时允许跨域；生产请改为具体域名 pattern
+      enabled: true
+      path-pattern: "/**"
+      allowed-origin-patterns:
+        - "*"
+      allowed-methods:
+        - "*"
+      allowed-headers:
+        - "*"
+      allow-credentials: false
+      max-age-seconds: 3600
   mcp:
     # 未设置 WISELINK_MCP_WORKSPACE_ROOT 时为空，回退 user.dir；生产请务必设环境变量或覆盖为绝对路径
     workspace-root: ${WISELINK_MCP_WORKSPACE_ROOT}
